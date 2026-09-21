@@ -34,7 +34,9 @@ Internet → Internet Gateway → Application Load Balancer → Target Group →
 
 A second EC2 web server will be deployed in a private subnet in another Availability Zone to provide redundancy at the application layer.
 
-An architecture diagram will be added as the project progresses.
+### Current Architecture Diagram
+
+![AWS Highly Available Web Application Architecture](aws-ha-web-app-architecture.png)
 
 ## AWS Services
 
