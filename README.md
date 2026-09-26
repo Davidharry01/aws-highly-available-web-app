@@ -21,7 +21,7 @@ The application is being deployed across multiple Availability Zones using publi
 - [ ] Deploy an Amazon RDS database
 - [ ] Configure monitoring with Amazon CloudWatch
 - [ x] Test high availability and fault tolerance
-- [ ] Complete architecture documentation and diagram
+- [ x] Complete architecture documentation and diagram
 
 ## Architecture
 The architecture uses an internet-facing Application Load Balancer (ALB) as the public entry point for the application. The ALB is deployed across public subnets in two Availability Zones and distributes incoming HTTP traffic to healthy EC2 instances through the target group.
@@ -37,7 +37,7 @@ Internet → Internet Gateway → Application Load Balancer → Target Group →
 The architecture was tested for fault tolerance by manually terminating an Auto Scaling-managed EC2 instance. The Auto Scaling Group detected the loss of capacity and automatically launched a replacement instance to restore the desired capacity.
 ### Architecture Diagram
 
-![AWS Highly Available Web Application Architecture](aws-ha-web-app-architecture.png)
+![AWS Highly Available Web Application Architecture](aws-ha-web-app-architecture.png?raw=1)
 
 ## AWS Services
 
