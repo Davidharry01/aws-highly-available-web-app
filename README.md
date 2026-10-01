@@ -18,7 +18,7 @@ The application is being deployed across multiple Availability Zones using publi
 - [x] Configure temporary NAT Gateway access for EC2 software installation
 - [x] Deploy a second EC2 web server in another Availability Zone
 - [ x] Implement EC2 Auto Scaling
-- [ ] Deploy an Amazon RDS database
+- [x ] Deploy an Amazon RDS database
 - [ ] Configure monitoring with Amazon CloudWatch
 - [ x] Test high availability and fault tolerance
 - [ x] Complete architecture documentation and diagram
@@ -30,9 +30,13 @@ The EC2 web servers are deployed in private subnets across two Availability Zone
 
 The Auto Scaling Group uses a Launch Template to automatically create EC2 instances with the required configuration. It is configured with a minimum capacity of 2 instances, a desired capacity of 2 instances, and a maximum capacity of 4 instances.
 
+The database tier uses Amazon RDS for MySQL. The RDS database is deployed privately within the VPC and is not publicly accessible. EC2 web servers connect to the database over MySQL port 3306. Database access is restricted through security groups so that the RDS instance accepts database traffic only from the EC2 application tier.
+
+The RDS deployment was validated by connecting from a private EC2 instance using the MySQL client, accessing the `webappdb` database, creating a `messages` table, and verifying the table successfully.
+
 Current traffic flow:
 
-Internet → Internet Gateway → Application Load Balancer → Target Group → Auto Scaling Group → EC2 Web Servers
+Internet → Internet Gateway → Application Load Balancer → Target Group → Auto Scaling Group → EC2 Web Servers → Amazon RDS MySQL
 
 The architecture was tested for fault tolerance by manually terminating an Auto Scaling-managed EC2 instance. The Auto Scaling Group detected the loss of capacity and automatically launched a replacement instance to restore the desired capacity.
 ### Architecture Diagram
@@ -55,10 +59,10 @@ The architecture was tested for fault tolerance by manually terminating an Auto 
 - Route Tables
 - Public and Private Subnets across two Availability Zones
 - Amazon Machine Image (AMI)
+- Amazon RDS for MySQL
 
 ### Planned
 
-- Amazon RDS
 - Amazon CloudWatch
 - Amazon Route 53
   
@@ -82,6 +86,41 @@ Deployment flow:
 
 Configured EC2 → AMI → Launch Template → Auto Scaling Group → EC2 Instances
 
+## Amazon RDS Database Configuration
+
+Amazon RDS for MySQL was deployed as the database tier for the application. The database is hosted privately within the VPC and is not publicly accessible from the internet.
+
+The RDS instance is configured with:
+
+- Engine: MySQL Community
+- Instance class: db.t4g.micro
+- Database: `webappdb`
+- Port: 3306
+- Public access: Disabled
+- Security group access restricted to the EC2 application tier
+
+To validate database connectivity, a MySQL-compatible client was installed on a private EC2 instance. The EC2 instance successfully connected to the RDS endpoint over port 3306 using the database administrator credentials.
+
+After connecting, the `webappdb` database was selected and a test table was created:
+
+```sql
+CREATE TABLE messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    message VARCHAR(255) NOT NULL
+);
+```
+
+The table was verified successfully using:
+
+```sql
+SHOW TABLES;
+```
+
+This validated the communication path:
+
+EC2 Web Server → RDS Security Group → Amazon RDS MySQL
+
+The EC2 instance does not require the database to be exposed to the public internet, keeping the database tier isolated within the VPC.
 ## High Availability and Fault Tolerance Testing
 
 The architecture was tested to verify that the application could remain available when an EC2 instance failed.
